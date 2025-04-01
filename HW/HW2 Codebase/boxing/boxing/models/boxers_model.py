@@ -17,7 +17,7 @@ class Boxer:
     A class to manage the attibutes of a boxer.
 
     Attributes:
-        if (int): The id of the boxer.
+        id (int): The id of the boxer.
         name (string): The name of the boxer.
         weight (int): The weight of the boxer.
         heiight (int): The height of the boxer.
@@ -75,14 +75,14 @@ def create_boxer(name: str, weight: int, height: int, reach: float, age: int) ->
 
 
 def delete_boxer(boxer_id: int) -> None:
-    """Removes a boxer from the database by its boxer ID.
+    """Permanently deletes a boxer from the catalog.
 
         Args:
-            boxer_id (int): The ID of the boxer to remove from the database.
+            boxer_id (int): The ID of the boxer to delete.
 
         Raises:
-            ValueError: If the boxer with this ID is not found in the database.
-            sqlite3.Error: If there is an error connecting to or interacting with the database.
+            ValueError: If the boxer with the given ID does not exist.
+            sqlite3.Error: If any database error occurs.
 
         """
     try:
@@ -91,12 +91,16 @@ def delete_boxer(boxer_id: int) -> None:
 
             cursor.execute("SELECT id FROM boxers WHERE id = ?", (boxer_id,))
             if cursor.fetchone() is None:
+                logger.warning(f"Attempted to delete non-existent boxer with ID {boxer_id}")
                 raise ValueError(f"Boxer with ID {boxer_id} not found.")
 
             cursor.execute("DELETE FROM boxers WHERE id = ?", (boxer_id,))
             conn.commit()
 
+            logger.info(f"Successfully deleted song with ID {boxer_id}")
+
     except sqlite3.Error as e:
+        logger.error(f"Database error while deleting boxer: {e}")
         raise e
 
 
@@ -144,22 +148,23 @@ def get_leaderboard(sort_by: str = "wins") -> List[dict[str, Any]]:
 
 
 def get_boxer_by_id(boxer_id: int) -> Boxer:
-    """Retrieves a boxer from the database by its boxer ID.
+    """Retrieves a boxer from the catalog by its boxer ID.
 
         Args:
             boxer_id (int): The ID of the boxer to retrieve.
 
         Returns:
-            Boxer: The boxer with the specified ID.
+            Boxer: The Boxer object corresponding to the boxer_id.
 
         Raises:
-            ValueError: If the boxer with this ID is not found in the database.
-            sqlite3.Error: If there is an error connecting to or searching in the database.
+            ValueError: If the boxer is not found.
+            sqlite3.Error: If any database error occurs.
 
     """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
+            logger.info(f"Attempting to retrieve boxer with ID {boxer_id}")
             cursor.execute("""
                 SELECT id, name, weight, height, reach, age
                 FROM boxers WHERE id = ?
@@ -168,15 +173,18 @@ def get_boxer_by_id(boxer_id: int) -> Boxer:
             row = cursor.fetchone()
 
             if row:
+                logger.info(f"Boxer with ID {boxer_id} found")
                 boxer = Boxer(
                     id=row[0], name=row[1], weight=row[2], height=row[3],
                     reach=row[4], age=row[5]
                 )
                 return boxer
             else:
+                logger.info(f"Boxer with ID {boxer_id} not found")
                 raise ValueError(f"Boxer with ID {boxer_id} not found.")
 
     except sqlite3.Error as e:
+        logger.error(f"Database error while retrieving song by ID {boxer_id}: {e}")
         raise e
 
 
@@ -226,8 +234,10 @@ def get_weight_class(weight: int) -> str:
     elif weight >= 125:
         weight_class = 'FEATHERWEIGHT'
     else:
+        logger.error(f"Invalid weight: {weight}. Weight must be at least 125.")
         raise ValueError(f"Invalid weight: {weight}. Weight must be at least 125.")
-
+    
+    logger.info(f"The weight class for {weight} pounds is {weight_class}.")
     return weight_class
 
 

@@ -58,9 +58,12 @@ class RingModel:
 
         If the ringList is already empty, logs a warning.
         """
+        logger.info("Received request to clear the ringList")
         if not self.ring:
+            logger.warning("Clearing an empty playlist")
             return
         self.ring.clear()
+        logger.info("Successfully cleared the ringList")
 
     def enter_ring(self, boxer: Boxer):
         if not isinstance(boxer, Boxer):
@@ -77,6 +80,7 @@ class RingModel:
         Returns:
             List[Boxer]: A list of all boxers in the ringList.
         """
+        logger.info("Retrieving all boxers in the ringList")
         if not self.ring:
             pass
         else:
@@ -94,6 +98,7 @@ class RingModel:
             float: A score to indicate the fighting skill of the boxer.
         """
         # Arbitrary calculations
+        logger.info(f"Calculating fighting skill for boxer with ID {boxer.boxer_id}")
         age_modifier = -1 if boxer.age < 25 else (-2 if boxer.age > 35 else 0)
         skill = (boxer.weight * len(boxer.name)) + (boxer.reach / 10) + age_modifier
 
