@@ -13,6 +13,18 @@ configure_logger(logger)
 
 @dataclass
 class Boxer:
+    """
+    A class to manage the attibutes of a boxer.
+
+    Attributes:
+        if (int): The id of the boxer.
+        name (string): The name of the boxer.
+        weight (int): The weight of the boxer.
+        heiight (int): The height of the boxer.
+        reach (float): The reach of the boxer.
+        age (int): The age of the boxer.
+        weight_class (string): The weight class of the boxer.
+    """
     id: int
     name: str
     weight: int
@@ -22,6 +34,9 @@ class Boxer:
     weight_class: str = None
 
     def __post_init__(self):
+        """Initializes the BoxersModel with a weight class based on the boxer's weight.
+
+        """
         self.weight_class = get_weight_class(self.weight)  # Automatically assign weight class
 
 
@@ -60,6 +75,16 @@ def create_boxer(name: str, weight: int, height: int, reach: float, age: int) ->
 
 
 def delete_boxer(boxer_id: int) -> None:
+    """Removes a boxer from the database by its boxer ID.
+
+        Args:
+            boxer_id (int): The ID of the boxer to remove from the database.
+
+        Raises:
+            ValueError: If the boxer with this ID is not found in the database.
+            sqlite3.Error: If there is an error connecting to or interacting with the database.
+
+        """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -119,6 +144,19 @@ def get_leaderboard(sort_by: str = "wins") -> List[dict[str, Any]]:
 
 
 def get_boxer_by_id(boxer_id: int) -> Boxer:
+    """Retrieves a boxer from the database by its boxer ID.
+
+        Args:
+            boxer_id (int): The ID of the boxer to retrieve.
+
+        Returns:
+            Boxer: The boxer with the specified ID.
+
+        Raises:
+            ValueError: If the boxer with this ID is not found in the database.
+            sqlite3.Error: If there is an error connecting to or searching in the database.
+
+    """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -167,6 +205,18 @@ def get_boxer_by_name(boxer_name: str) -> Boxer:
 
 
 def get_weight_class(weight: int) -> str:
+    """Returns the weight class of the given weight.
+
+        Args:
+            weight (int): The weight of a given boxer.
+
+        Returns:
+            String: The corresponding weight class for the weight.
+
+        Raises:
+            ValueError: If the weight inputed is less than 125.
+
+    """
     if weight >= 203:
         weight_class = 'HEAVYWEIGHT'
     elif weight >= 166:
