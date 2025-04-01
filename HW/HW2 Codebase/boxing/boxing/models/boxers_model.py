@@ -20,7 +20,7 @@ class Boxer:
         id (int): The id of the boxer.
         name (string): The name of the boxer.
         weight (int): The weight of the boxer.
-        heiight (int): The height of the boxer.
+        height (int): The height of the boxer.
         reach (float): The reach of the boxer.
         age (int): The age of the boxer.
         weight_class (string): The weight class of the boxer.
