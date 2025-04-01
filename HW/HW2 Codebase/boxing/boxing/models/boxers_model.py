@@ -45,8 +45,8 @@ def create_boxer(name: str, weight: int, height: int, reach: float, age: int) ->
     
     Args:
         name (str): name of the boxer to add to database. Must be unique to the database.
-        weight (int): The boxer's name.
-        height (int): The boxer's height
+        weight (int): The boxer's weight.
+        height (int): The boxer's height.
         reach (float): The boxer's reach.
         age (int): The boxer's age.
     
