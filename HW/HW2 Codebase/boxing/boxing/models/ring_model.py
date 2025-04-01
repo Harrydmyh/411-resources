@@ -13,18 +13,31 @@ configure_logger(logger)
 
 class RingModel:
     """
-    A class to manage boxers in a ring fight.
+    A class to manage a ring of boxers.
 
     Attributes:
-        ring (List[Boxer]): The list of boxers in the ring.
+        ring (List[Boxer]): A list of boxer's in the ring
+
     """
     def __init__(self):
-        """Initializes the RingModel with an empty list of boxers.
+        """ Initializes the RingModel with an empty list of boxers.
+        
         """
         self.ring: List[Boxer] = []
+        
 
     def fight(self) -> str:
+        """Returns the outcome of a simulation of two boxers fighting based off randomness and fighting skill, and updates their stats.
+        
+        Returns:
+            str: The name of the winner of the fight.
+        
+        Raises:
+            ValueError: If the number of boxers in the ring is less than 2.
+
+        """
         if len(self.ring) < 2:
+            logger.warning("There must be two boxers to start a fight.")
             raise ValueError("There must be two boxers to start a fight.")
 
         boxer_1, boxer_2 = self.get_boxers()
@@ -47,10 +60,12 @@ class RingModel:
             loser = boxer_1
 
         update_boxer_stats(winner.id, 'win')
+        logger.info(f"Updated stats for winner: {winner.name} (ID: {winner.id})")
         update_boxer_stats(loser.id, 'loss')
+        logger.info(f"Updated stats for loser: {loser.name} (ID: {loser.id})")
 
         self.clear_ring()
-
+        logger.info(f"Successfully simulated winner of fight between boxers: {winner.name} and {loser.name}")
         return winner.name
 
     def clear_ring(self):
@@ -66,13 +81,28 @@ class RingModel:
         logger.info("Successfully cleared the ringList")
 
     def enter_ring(self, boxer: Boxer):
+        """ Adds a boxer into the ring.
+
+        Args:
+            boxer (Boxer): The boxer observation.
+        
+        Raises:
+            TypeError: If the boxer is not a valid Boxer instance.
+            ValueError: If the ring is already full.
+
+        """
+        logger.info("Received request to add boxer to ring")
+        
         if not isinstance(boxer, Boxer):
+            logger.error("Invalid type: boxer is not a valid Boxer instance.")
             raise TypeError(f"Invalid type: Expected 'Boxer', got '{type(boxer).__name__}'")
 
         if len(self.ring) >= 2:
+            logger.error("Ring is full, cannot add more boxers")
             raise ValueError("Ring is full, cannot add more boxers.")
 
         self.ring.append(boxer)
+        logger.info(f"Successfully added boxer: {boxer.name} to the ring.")
 
     def get_boxers(self) -> List[Boxer]:
         """Returns a list of all boxers in the ringList.
