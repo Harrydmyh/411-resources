@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from dataclasses import asdict
 
 import pytest
@@ -12,29 +11,17 @@ def ring_model():
     return RingModel()
 
 @pytest.fixture
-def mock_cursor(mocker):
-    mock_conn = mocker.Mock()
-    mock_cursor = mocker.Mock()
+def mock_db_connection(mocker):
+    """Mock the connection to the SQLite database."""
+    mock_conn = mocker.MagicMock()
+    mock_cursor = mocker.MagicMock()
 
-    # Mock the connection's cursor
+    mocker.patch("sqlite3.connect", return_value=mock_conn)
     mock_conn.cursor.return_value = mock_cursor
-    mock_cursor.fetchone.return_value = None  # Default return for queries
-    mock_cursor.fetchall.return_value = []
-    mock_cursor.commit.return_value = None
 
-    # Mock the get_db_connection context manager from sql_utils
-    @contextmanager
-    def mock_get_db_connection():
-        yield mock_conn  # Yield the mocked connection object
+    mock_cursor.__enter__.return_value = mock_cursor
 
-    mocker.patch("boxing.models.boxers_model.get_db_connection", mock_get_db_connection)
-
-    return mock_cursor  # Return the mock cursor so we can set expectations per test
-
-@pytest.fixture
-def mock_update_boxer_count(mocker):
-    """Mock the update_play_count function for testing purposes."""
-    return mocker.patch("boxing.models.boxers_model.update_boxer_stats")
+    return mock_conn
 
 """Fixtures providing sample boxers for the tests."""
 @pytest.fixture()
@@ -64,7 +51,7 @@ def test_fight_with_one_boxer(ring_model, sample_boxer1):
     with pytest.raises(ValueError, match="There must be two boxers to start a fight."):
         ring_model.fight()
 
-def test_fight_with_two_boxers(ring_model, sample_boxers, mock_update_boxer_count, mock_cursor, mocker):
+def test_fight_with_two_boxers(ring_model, sample_boxers,  mock_db_connection, mocker):
     """Test a fight between two boxers.
 
     """
