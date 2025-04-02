@@ -10,7 +10,7 @@ def ring_model():
     """Fixture to provide a new instance of RingModel for each test."""
     return RingModel()
 
-@pytest.fixture
+@pytest.fixture()
 def mock_db_connection(mocker):
     """Mock the connection to the SQLite database."""
     mock_conn = mocker.MagicMock()
