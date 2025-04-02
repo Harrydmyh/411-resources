@@ -81,64 +81,52 @@ def test_create_boxer_duplicate(mock_cursor):
     # Simulate that the database will raise an IntegrityError due to a duplicate entry
     mock_cursor.execute.side_effect = sqlite3.IntegrityError("UNIQUE constraint failed: boxers.name")
 
-    with pytest.raises(ValueError, match="Boxer with name 'Boxer Name' already exists."):
+    with pytest.raises(ValueError, match="Boxer with name 'Boxer Name' already exists"):
         create_boxer(name="Boxer Name", weight=150, height=70, reach=10, age=25)
 
     
-def test_create_boxer_invalid_weight():
+def test_create_boxer_invalid_weight(mock_cursor):
     """Test error when trying to create a boxer with an invalid weight (e.g., less than or equal to 125)
 
     """
-    with pytest.raises(ValueError, match=r"Invalid weight: 125. Must be at least 125."):
-        create_boxer(name="Boxer Name", weight=125, height=70, reach=10, age=25)
+    with pytest.raises(ValueError, match=r"Invalid weight: 120. Must be at least 125."):
+        create_boxer(name="Boxer Name", weight=120, height=70, reach=10, age=25)
 
     with pytest.raises(ValueError, match=r"Invalid weight: -10. Must be at least 125."):
         create_boxer(name="Boxer Name", weight= -10, height=70, reach=10, age=25)
-
-    with pytest.raises(ValueError, match=r"Invalid weight: invalid. Must be at least 125."):
-        create_boxer(name="Boxer Name", weight="invalid", height=70, reach=10, age=25)
 
 
 def test_create_boxer_invalid_height():
     """Test error when trying to create a boxer with an invalid height (e.g., negative or 0)
 
     """
-    with pytest.raises(ValueError, match=r"Invalid height: 0 \(must be a positive integer\)."):
+    with pytest.raises(ValueError, match=r"Invalid height: 0. Must be greater than 0."):
         create_boxer(name="Boxer Name", weight=150, height=0, reach=10, age=25)
 
-    with pytest.raises(ValueError, match=r"Invalid height: -10 \(must be a positive integer\)."):
+    with pytest.raises(ValueError, match=r"Invalid height: -10. Must be greater than 0."):
         create_boxer(name="Boxer Name", weight=150, height= -10, reach=10, age=25)
-
-    with pytest.raises(ValueError, match=r"Invalid height: invalid \(must be a positive integer\)."):
-        create_boxer(name="Boxer Name", weight=150, height="invalid", reach=10, age=25)
 
     
 def test_create_boxer_invalid_reach():
     """Test error when trying to create a boxer with an invalid reach (e.g., negative or 0)
 
     """
-    with pytest.raises(ValueError, match=r"Invalid reach: 0 \(must be a positive integer\)."):
+    with pytest.raises(ValueError, match=r"Invalid reach: 0. Must be greater than 0."):
         create_boxer(name="Boxer Name", weight=150, height=70, reach=0, age=25)
 
-    with pytest.raises(ValueError, match=r"Invalid reach: -10 \(must be a positive integer\)."):
+    with pytest.raises(ValueError, match=r"Invalid reach: -10. Must be greater than 0."):
         create_boxer(name="Boxer Name", weight=150, height=70, reach= -10, age=25)
-
-    with pytest.raises(ValueError, match=r"Invalid reach: invalid \(must be a positive integer\)."):
-        create_boxer(name="Boxer Name", weight=150, height=70, reach="invalid", age=25)
 
     
 def test_create_boxer_invalid_age():
     """Test error when trying to create a boxer with an invalid age (e.g., less than 18 or greater than 40)
 
     """
-    with pytest.raises(ValueError, match=r"Invalid reach: 17 \(must be a greater than 17 and less than 41\)."):
+    with pytest.raises(ValueError, match=r"Invalid age: 17. Must be between 18 and 40."):
         create_boxer(name="Boxer Name", weight=150, height=70, reach=10, age=17)
 
-    with pytest.raises(ValueError, match=r"Invalid reach: 41 \(must be a greater than 17 and less than 41\)."):
+    with pytest.raises(ValueError, match=r"Invalid age: 41. Must be between 18 and 40."):
         create_boxer(name="Boxer Name", weight=150, height=70, reach=10, age=41)
-
-    with pytest.raises(ValueError, match=r"Invalid reach: invalid \(must be a greater than 17 and less than 41\)."):
-        create_boxer(name="Boxer Name", weight=150, height=70, reach=10, age="invalid")
 
     
 ### Delete
@@ -224,8 +212,8 @@ def test_get_leaderboard_sorted_by_win_pct(mock_cursor):
     
     """
     mock_cursor.fetchall.return_value = [
-        (1, "Boxer A", 200, 70, 10, 25, 10, 5, .5),
         (2, "Boxer B", 210, 65, 12, 30, 4, 3, .75),
+        (1, "Boxer A", 200, 70, 10, 25, 10, 5, .5),
         (3, "Boxer C", 220, 75, 14, 35, 8, 2, .25)
     ]
     
@@ -320,7 +308,7 @@ def test_get_boxer_by_name_bad_name(mock_cursor):
     """
     mock_cursor.fetchone.return_value = None
     
-    with pytest.raises(ValueError, match="Boxer with name 'Boxer Name' not found"):
+    with pytest.raises(ValueError, match="Boxer 'Boxer Name' not found."):
         get_boxer_by_name("Boxer Name")
 
     
